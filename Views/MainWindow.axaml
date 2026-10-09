@@ -1,0 +1,98 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VoiceGrid.Views.MainWindow"
+        Title="VoiceGrid – hlasové zadávání čísel (cs-CZ)"
+        Width="920" Height="680" MinWidth="720" MinHeight="520">
+  <TabControl>
+
+    <TabItem Header="Tabulka">
+      <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="12">
+        <StackPanel Grid.Row="0" Spacing="2">
+          <TextBlock Text="{Binding CursorText}" FontSize="20" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding Status}" Opacity="0.8" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Margin="0,10" Padding="12" CornerRadius="6" BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding PendingDisplay}" FontSize="36" FontWeight="Bold"
+                       MinWidth="180" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding Heard}" Opacity="0.7" Margin="12,0"
+                       VerticalAlignment="Center" TextWrapping="Wrap" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasPending}">
+              <Button Content="Potvrdit (Enter)" Command="{Binding ConfirmCommand}" />
+              <Button Content="Znovu (Esc)" Command="{Binding RetryCommand}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <DataGrid Grid.Row="2" x:Name="ValuesGrid" ItemsSource="{Binding Rows}"
+                  AutoGenerateColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False"
+                  GridLinesVisibility="All" SelectionMode="Single">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Položka" Binding="{Binding Name}" IsReadOnly="True" Width="*" />
+            <DataGridTextColumn Header="Hodnota 1" Binding="{Binding Value1, StringFormat='{}{0:0.####}'}" Width="*" />
+            <DataGridTextColumn Header="Hodnota 2" Binding="{Binding Value2, StringFormat='{}{0:0.####}'}" Width="*" />
+            <DataGridTextColumn Header="Hodnota 3" Binding="{Binding Value3, StringFormat='{}{0:0.####}'}" Width="*" />
+          </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="3" Margin="0,10,0,0" Text="{Binding HintText}" FontSize="14" Opacity="0.8" />
+      </Grid>
+    </TabItem>
+
+    <TabItem Header="Nastavení">
+      <ScrollViewer>
+        <StackPanel Margin="16" Spacing="12" MaxWidth="600" HorizontalAlignment="Left">
+
+          <TextBlock Text="Ovládání" FontWeight="SemiBold" FontSize="16" />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Klávesa pro nahrávání (držet):" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding KeyLabel}" FontWeight="Bold" VerticalAlignment="Center" />
+            <Button Content="Změnit…" Command="{Binding StartKeyCaptureCommand}" />
+          </StackPanel>
+          <CheckBox Content="Po potvrzení automaticky přejít na další buňku" IsChecked="{Binding Settings.AutoAdvance}" />
+          <StackPanel Orientation="Horizontal" Spacing="10" Margin="24,0,0,0" IsEnabled="{Binding Settings.AutoAdvance}">
+            <TextBlock Text="Směr:" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding DirectionValues}" SelectedItem="{Binding Settings.Direction}" />
+          </StackPanel>
+          <CheckBox Content="Přečíst rozpoznanou hodnotu nahlas" IsChecked="{Binding Settings.SpeakBack}" />
+
+          <Separator />
+          <TextBlock Text="Zvuková zařízení" FontWeight="SemiBold" FontSize="16" />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Mikrofon:" Width="90" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding InputDevices}" SelectedValueBinding="{Binding Name}"
+                      SelectedValue="{Binding Settings.InputDevice}" DisplayMemberBinding="{Binding Display}" MinWidth="340" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Výstup:" Width="90" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding OutputDevices}" SelectedValueBinding="{Binding Name}"
+                      SelectedValue="{Binding Settings.OutputDevice}" DisplayMemberBinding="{Binding Display}" MinWidth="340" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="8" Margin="100,0,0,0">
+            <Button Content="Obnovit seznam" Command="{Binding RefreshDevicesCommand}" />
+            <Button Content="Vyzkoušet výstup" Command="{Binding TestOutputCommand}" />
+          </StackPanel>
+
+          <Separator />
+          <TextBlock Text="Rozpoznávání řeči" FontWeight="SemiBold" FontSize="16" />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="Režim:" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding ModeValues}" SelectedItem="{Binding Settings.Mode}" />
+            <TextBlock Text="Auto = online, při výpadku offline" Opacity="0.6" VerticalAlignment="Center" />
+          </StackPanel>
+
+          <TextBlock Text="Offline (Whisper; změna modelu se načte hned, případně stáhne)" Opacity="0.8" />
+          <ComboBox ItemsSource="{Binding ModelChoices}" SelectedItem="{Binding Settings.WhisperModel}" MinWidth="300" />
+
+          <TextBlock Text="Online (OpenAI-kompatibilní /audio/transcriptions)" Opacity="0.8" />
+          <TextBox Text="{Binding Settings.OnlineBaseUrl}" Watermark="Base URL" />
+          <TextBox Text="{Binding Settings.OnlineModel}" Watermark="Model (gpt-4o-transcribe, whisper-1, …)" />
+          <TextBox Text="{Binding Settings.OnlineApiKey}" PasswordChar="•" Watermark="API klíč (nebo proměnná OPENAI_API_KEY)" />
+        </StackPanel>
+      </ScrollViewer>
+    </TabItem>
+
+  </TabControl>
+</Window>
